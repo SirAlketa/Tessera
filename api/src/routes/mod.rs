@@ -11,6 +11,7 @@ pub mod holders;
 pub mod portfolio;
 pub mod privacy;
 pub mod proofs;
+pub mod regulatory;
 #[expect(
     dead_code,
     reason = "The search placeholder is not part of the active API router."
@@ -197,6 +198,11 @@ pub fn router(state: AppState) -> Router {
         .nest("/v1", data_routes)
         .route("/v1/ws", get(crate::ws::handler))
         .route("/v1/admin/dlq/retry", axum::routing::post(dlq::retry))
+        // Issue #72: FATF Travel Rule / MAS regulatory report generation.
+        .route(
+            "/v1/admin/regulatory/fatf-travel-rule",
+            axum::routing::post(regulatory::fatf_travel_rule),
+        )
         // Issue #26: per-key differential-privacy budget consumption.
         .route("/v1/admin/privacy/budget", get(privacy::budget))
         // `route_layer` (rather than `layer`) so the middleware runs after
